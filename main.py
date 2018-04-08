@@ -39,7 +39,7 @@ def doExtract(path):
 
     #if repr(allTxt)=='':
     #    text = convertPDF(file)
-    for f in os.listdir(path)[:2]:
+    for f in os.listdir(path):
         ext = os.path.splitext(f)[1]
         if ext.lower() in ['.pdf']:
             print(path,f)
