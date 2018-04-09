@@ -1,4 +1,4 @@
-## Getting Started 
+## Getting Started
 User provides a directory ('dir') to the console.
 1. Search dir for an .xlsx file
 2. Once found, search .xlsx file for floats (dollars)
@@ -8,7 +8,7 @@ User provides a directory ('dir') to the console.
 
 ### Kickoff
 Finds first .xlsx file in directory, extracts floats, then breaks loop.
-[excelRead()](#imports-floats-from-xlsx-file)
+[excelRead()](#import-floats-from-xlsx-file)
 ```python
 main() #Receives path by user in console then calls doExtract()
 
@@ -32,7 +32,7 @@ for f in os.listdir(path):
     docResults = convertDocPDF(os.path.join(path,f),floatDict) #Returns float matches in a PDF
 ```
 Now in covertDocPDF()
-[makeCV2(), doJPGPNG()](#converts-pdf-to-png-to-cv2-usable)
+[makeCV2(), doJPGPNG()](#convert-pdf-to-png-to-cv2-usable-for-ocr)
 ```python
 convertDocPDF(path,floatDict)
 ...
@@ -71,7 +71,7 @@ print(len(endDict))
 return endDict,floatDict
 ```
 Finish by passing dicts to write new .xlsx file
-[writeExcel()](#writes-output-xlsx-file)
+[writeExcel()](#writes-output-to-new-xlsx-file)
 ```python
 main()
 ...
