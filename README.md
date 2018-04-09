@@ -1,5 +1,5 @@
-# Getting Started
-This program extracts floats from an Excel file and searches local PDFs for matching floats using OCR. 
+# Asset Confirms
+This program extracts floats from an Excel file and searches local PDFs for matching floats using OCR.
 1. User provides a directory ('dir') to the console.
 2. Search dir for an .xlsx file
 3. Once found, search .xlsx file for floats (dollars)
