@@ -1,4 +1,4 @@
-# Distribution Confirmation
+## Getting Started 
 User provides a directory ('dir') to the console.
 1. Search dir for an .xlsx file
 2. Once found, search .xlsx file for floats (dollars)
