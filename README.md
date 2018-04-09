@@ -1,10 +1,11 @@
-## Getting Started
-User provides a directory ('dir') to the console.
-1. Search dir for an .xlsx file
-2. Once found, search .xlsx file for floats (dollars)
-3. Search all PDFs in dir for matching floats
+# Getting Started
+This program extracts floats from an Excel file and searches local PDFs for matching floats using OCR. 
+1. User provides a directory ('dir') to the console.
+2. Search dir for an .xlsx file
+3. Once found, search .xlsx file for floats (dollars)
+4. Search all PDFs in dir for matching floats
    - If not text-readable, use OCR to convert to text
-4. Write matching floats and their locations to new .xlsx file. Also report non-matches.
+5. Write matching floats and their locations to new .xlsx file. Also report non-matches.
 
 ### Kickoff
 Finds first .xlsx file in directory, extracts floats, then breaks loop.
