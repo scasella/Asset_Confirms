@@ -1,5 +1,10 @@
 # Distribution Confirmation
-User provides a directory in console. Script searches an .xlsx file for floats then looks through local .pdfs for matches and extracts related text using Tesseract's OCR if .pdf is not text-readable.
+User pastes a directory ('dir') in console.
+1. Search dir for an .xlsx file
+2. Once found, search .xlsx file for floats (dollars)
+3. Search all PDFs in dir for matching floats
+  - If not text-readable, use OCR to convert to text
+4. Write matching floats and their locations to new .xlsx file. Also report non-matches.
 
 ### Kickoff
 Finds first .xlsx file in directory, extracts floats, the breaks loop.
@@ -19,12 +24,12 @@ doExtract(path) #Path passed from main()
 ### Loop through each PDF
 In doExtract()
 ```python
-  for f in os.listdir(path):
-    ext = os.path.splitext(f)[1]
-    if ext.lower() in ['.pdf']:
-      print(path,f)
-      docResults = {}
-      docResults = convertDocPDF(os.path.join(path,f),floatDict) #Returns float matches in a PDF
+for f in os.listdir(path):
+  ext = os.path.splitext(f)[1]
+  if ext.lower() in ['.pdf']:
+    print(path,f)
+    docResults = {}
+    docResults = convertDocPDF(os.path.join(path,f),floatDict) #Returns float matches in a PDF
 ```
 Now in covertDocPDF()
 [makeCV2(), doJPGPNG()](#converts-pdf-to-png-to-cv2-usable)
