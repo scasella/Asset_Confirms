@@ -1,5 +1,5 @@
 # Distribution Confirmation
-User pastes a directory ('dir') in console.
+User provides a directory ('dir') to the console.
 1. Search dir for an .xlsx file
 2. Once found, search .xlsx file for floats (dollars)
 3. Search all PDFs in dir for matching floats
@@ -7,7 +7,7 @@ User pastes a directory ('dir') in console.
 4. Write matching floats and their locations to new .xlsx file. Also report non-matches.
 
 ### Kickoff
-Finds first .xlsx file in directory, extracts floats, the breaks loop.
+Finds first .xlsx file in directory, extracts floats, then breaks loop.
 [excelRead()](#imports-floats-from-xlsx-file)
 ```python
 main() #Receives path by user in console then calls doExtract()
@@ -79,7 +79,7 @@ main()
   return
 ```
 ## Supporting Functions
-#### Imports floats from XLSX file
+#### Import floats from XLSX file
 ```python
 def extractExcel(file):
   xl = pd.ExcelFile(file)
@@ -104,7 +104,7 @@ def extractExcel(file):
   return finalDict
 ```
 
-#### Converts PDF to PNG to CV2-usable
+#### Convert PDF to PNG to CV2-usable for OCR
 ```python
 def makeCV2(img):
   img.convert("png")
@@ -142,7 +142,7 @@ def doJPGPNG(cvF,ssnRE=''):
   return final
 ```
 
-#### Text-matching
+#### Text-match OCR'd image and floats
 ```python
 def findText(text,floatDict,docLoc):
   foundDict = {}
@@ -164,7 +164,7 @@ def findText(text,floatDict,docLoc):
       foundDict[key] = finalT
   return foundDict
 ```
-#### Writes output XLSX file
+#### Writes output to new XLSX file
 ```python
 def writeExcel(path,fDict,notFound):
   workbook = xlsxwriter.Workbook(path+'/Output.xlsx')
