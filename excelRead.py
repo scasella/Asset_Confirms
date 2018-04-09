@@ -1,23 +1,23 @@
 import pandas as pd
 
-def extractExcel(file):
+def extract_excel(file):
     xl = pd.ExcelFile(file)
     df = xl.parse(xl.sheet_names[0])
-    nList = df.values.tolist()
+    n_list = df.values.tolist()
 
     floats = {}
-    for element in nList:
+    for element in n_list:
         for i in element:
             if isinstance(i, float):
                 floats[str(i)] = element
                 break
 
-    finalDict = {}
-    for key,val in floats.items():
-        tempList = []
+    final_dict = {}
+    for key, val in floats.items():
+        temp_list = []
         for x in val:
-            tempList.append(str(x))
-        finalDict[str(key)] = tempList
+            temp_list.append(str(x))
+        final_dict[str(key)] = temp_list
 
     print('Distribution list imported')
-    return finalDict
+    return final_dict
