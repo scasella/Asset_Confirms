@@ -1,5 +1,6 @@
 import os
 import cv2
+import PyPDF2
 import pytesseract
 import numpy as np
 from wand.image import Image as Image
@@ -8,8 +9,11 @@ from wand.color import Color as Color
 from excelRead import extract_excel
 from excelWrite import write_excel
 
+import warnings
+warnings.simplefilter("ignore") #To surpress PDF-read 'superfluous whitespace' warning
+
 def main(var):
-    end_dict, float_dict = do_extract(var)
+    end_dict, float_dict, excel_file_path = do_extract(var)
     if any(float_dict) == 0:
         return
 
@@ -18,8 +22,9 @@ def main(var):
         if key not in end_dict:
             not_found.append(key)
 
-    write_excel(var, end_dict, not_found)
+    write_excel(var, end_dict, not_found, excel_file_path)
     return
+
 
 def do_extract(path):
     end_dict = {}
@@ -29,25 +34,17 @@ def do_extract(path):
         ext = os.path.splitext(f_now)[1]
         if ext.lower() in ['.xlsx']:
             float_dict = extract_excel(os.path.join(path, f_now))
+            excel_file_path = str(os.path.join(path, f_now))
             break
     if any(float_dict) == 0:
         return end_dict, float_dict
-    #pdfFileObj = open(file, 'rb')
-    #pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
 
-    #allTxt = ""
-
-    #for i in range(pdfReader.numPages):
-    #    allTxt+=pdfReader.getPage(i).extractText()
-
-    #if repr(allTxt)=='':
-    #    text = convertPDF(file)
     for f_now in os.listdir(path):
         ext = os.path.splitext(f_now)[1]
         if ext.lower() in ['.pdf']:
             print(path, f_now)
             doc_results = {}
-            doc_results = convert_doc_pdf(os.path.join(path, f_now), float_dict) #Returns float matches in a PDF
+            doc_results = handle_pdf(os.path.join(path, f_now), float_dict)
             if doc_results != None: #If any float matches were
                 for key, val in doc_results.items():
                     if key in end_dict:
@@ -55,28 +52,52 @@ def do_extract(path):
                     else:
                         end_dict[key] = [val]
     print(len(end_dict))
-    return end_dict, float_dict
+    return end_dict, float_dict, excel_file_path
+
+
+def handle_pdf(path, float_dict):
+    pdf_file_obj = open(path, 'rb')
+    pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+    txt_check = pdf_reader.getPage(0).extractText()
+    if txt_check != '':
+        print('Text-searchable')
+        doc_results = {}
+        for i in range(pdf_reader.numPages):
+            temp_text = pdf_reader.getPage(i).extractText()
+            results = find_text(temp_text, float_dict, [path, i+1, pdf_reader.numPages])
+            doc_results = diff_doc_results(results, doc_results)
+            print('Scan {0} page {1}/{2} completed'.format(str(path).split('\\')[-1], i+1, pdf_reader.numPages))
+    else:
+        doc_results = convert_doc_pdf(path, float_dict)
+
+    return doc_results
+
+
+def diff_doc_results(results, doc_results):
+    for key, val in results.items():
+        if key in doc_results:
+            doc_results[key].append(val)
+        else:
+            doc_results[key] = val
+
+    return doc_results
+
 
 def convert_doc_pdf(path, float_dict):
     doc_results = {}
     try:
         img = Image(filename=path, resolution=350)
+        img_seq = img.sequence
     except:
         print('Corrupt File - {0}'.format(path))
         return
-
-    img_seq = img.sequence
-
     for i in range(len(img_seq)):
         cv_ready = make_cv2(Image(image=img_seq[i]))
         text = do_jpg_png(cv_ready)
         results = find_text(text, float_dict, [path, i+1, len(img_seq)]) #Find matches between float_dict and given text
-        for key, val in results.items():
-            if key in doc_results:
-                doc_results[key].append(val)
-            else:
-                doc_results[key] = val
+        doc_results = diff_doc_results(results, doc_results)
         print('Scan {0} page {1}/{2} completed'.format(str(path).split('\\')[-1], i+1, len(img_seq)))
+
     return doc_results
 
 
@@ -115,10 +136,9 @@ def make_cv2(img):
 
 def do_jpg_png(cvF, ssn_re=''):
     pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract'
-
     gray = cv2.bitwise_not(cvF)
-    #thresh = cv2.adaptiveThreshold(cvF, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 1)
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    #thresh = cv2.adaptiveThreshold(cvF, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 1)
     #kernel = np.ones((1,1),np.uint8)
     #thresh = cv2.erode(thresh,kernel,iterations = 1)
     #blur = cv2.GaussianBlur(thresh,(1,1),0)
@@ -127,7 +147,6 @@ def do_jpg_png(cvF, ssn_re=''):
     #cv2.imshow('img',im2)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
-
     #Tesseract find text from img
     #final = ssn_re.findall(pytesseract.image_to_string(thresh).replace(' ', ''))
     #final = formatSSN(final)
