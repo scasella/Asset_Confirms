@@ -49,7 +49,7 @@ convert_doc_pdf(path, float_dict)
     for i in range(len(img_seq)):
       cv_ready = make_cv2(Image(image=img_seq[i]))
       text = do_jpg_png(cv_ready)
-      results = findText(text, float_dict, [path, i+1, len(img_seq)]) #Find matches between float_dict and given text
+      results = find_text(text, float_dict, [path, i+1, len(img_seq)]) #Find matches between float_dict and given text
       for key, val in results.items():
         if key in doc_results:
           doc_results[key].append(val)
@@ -142,7 +142,7 @@ def make_cv2(img):
 
 #### Text-match OCR'd image and floats
 ```python
-def findText(text, float_dict, docLoc):
+def find_text(text, float_dict, docLoc):
   found_dict = {}
 
   for key in float_dict.keys():
