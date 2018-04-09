@@ -44,8 +44,8 @@ def doExtract(path):
         if ext.lower() in ['.pdf']:
             print(path,f)
             docResults = {}
-            docResults = convertDocPDF(os.path.join(path,f),floatDict)
-            if docResults != None:
+            docResults = convertDocPDF(os.path.join(path,f),floatDict) #Returns float matches in a PDF
+            if docResults != None: #If any float matches were
                 for key,val in docResults.items():
                     if key in endDict:
                         endDict[key].append(val)
@@ -68,7 +68,7 @@ def convertDocPDF(path,floatDict):
     for i in range(len(imgSeq)):
         cvReady = makeCV2(Image(image=imgSeq[i]))
         text = doJPGPNG(cvReady)
-        results = findText(text,floatDict,[path,i+1,len(imgSeq)])
+        results = findText(text,floatDict,[path,i+1,len(imgSeq)]) #Find matches between floatDict and given text
         for key,val in results.items():
             if key in docResults:
                 docResults[key].append(val)
@@ -85,6 +85,11 @@ def findText(text,floatDict,docLoc):
         if key in text:
             ind = text.index(key)
             bText = text[:ind].split('\n')[-1]
+            bInd = 2
+            while len(bText) < 12:
+                bText = text[:ind].split('\n')[-bInd]+' '+bText
+                bInd+=1
+
             aText = text[ind:].split('\n')[0]
             finalT = [bText+aText]
             docStr = str(docLoc[0]).split('\\')[-1]
