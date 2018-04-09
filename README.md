@@ -1,13 +1,13 @@
 # Distribution Confirmation
-Script searches an .xlsx file for floats then looks through local .pdfs for matches and extracts related text using Tesseract's OCR if .pdf is not text-readable.
+User provides a directory in console. Script searches an .xlsx file for floats then looks through local .pdfs for matches and extracts related text using Tesseract's OCR if .pdf is not text-readable.
 
 ### Kickoff
 Finds first .xlsx file in directory, extracts floats, the breaks loop.
 [excelRead()](#imports-floats-from-xlsx-file)
 ```python
-main(var) #Receives path by user in console
+main() #Receives path by user in console then calls doExtract()
 
-doExtract(path) #Path passed to main extractor function
+doExtract(path) #Path passed from main()
 ...
   for f in os.listdir(path):
     ext = os.path.splitext(f)[1]
@@ -27,7 +27,7 @@ In doExtract()
       docResults = convertDocPDF(os.path.join(path,f),floatDict) #Returns float matches in a PDF
 ```
 Now in covertDocPDF()
-[makeCV2(), doJPGPNG()](converts-pdf-to-png-to-cv2-usable)
+[makeCV2(), doJPGPNG()](#converts-pdf-to-png-to-cv2-usable)
 ```python
 convertDocPDF(path,floatDict)
 ...
@@ -65,8 +65,8 @@ if docResults != None: #If any float matches were found in PDFs
 print(len(endDict))
 return endDict,floatDict
 ```
-#### Finish by passing dicts to write to new .xlsx file
-[writeExcel()](writes-output-xlsx-file)
+Finish by passing dicts to write new .xlsx file
+[writeExcel()](#writes-output-xlsx-file)
 ```python
 main()
 ...
@@ -100,14 +100,6 @@ def extractExcel(file):
 ```
 
 #### Converts PDF to PNG to CV2-usable
-```python
-convertDocPDF(path,floatDict)
-...
-  cvReady = makeCV2(Image(image=imgSeq[i]))
-  text = doJPGPNG(cvReady)
-...
-```
-
 ```python
 def makeCV2(img):
   img.convert("png")
@@ -216,4 +208,5 @@ def writeExcel(path,fDict,notFound):
     rCount+=1
 
   workbook.close()
+  return
 ```
