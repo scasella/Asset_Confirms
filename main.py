@@ -3,6 +3,7 @@ import os
 from pdfClass import PDFObj
 from excelRead import extract_excel
 from excelWrite import write_excel
+import re
 
 import warnings
 warnings.simplefilter("ignore") #To surpress PDF-read 'superfluous whitespace' warning
@@ -13,9 +14,16 @@ def main(var):
         return
 
     not_found = []
-    for key in float_dict.keys():
+    for key, val in float_dict.items():
         if key not in end_dict:
-            not_found.append(key)
+            item = key
+            name = 'No name'
+            regx_term = re.compile('[A-Z].*\s[A-Z].*')
+            for i in val:
+                if re.search(regx_term, i) != None:
+                    name = i
+                    break
+            not_found.append([name, item])
 
     write_excel(var, end_dict, not_found, excel_file_path)
     return

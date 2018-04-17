@@ -4,6 +4,7 @@ import numpy as np
 from wand.image import Image as Image
 from wand.color import Color as Color
 import PyPDF2
+import re
 
 class PDFObj:
     def __init__(self, path, float_dict):
@@ -20,7 +21,6 @@ class PDFObj:
         pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
         txt_check = pdf_reader.getPage(0).extractText()
         if txt_check != '':
-            print('Text-searchable')
             for i in range(pdf_reader.numPages):
                 temp_text = pdf_reader.getPage(i).extractText()
                 results = self.__find_text(temp_text, float_dict, [path, i+1, pdf_reader.numPages])
@@ -85,19 +85,17 @@ class PDFObj:
         return final
 
     def __find_text(self, text, float_dict, docLoc):
+        regx_term = re.compile('[A-Z].*\s[A-Z].*')
         found_dict = {}
-        for key in float_dict.keys():
+        for key, val in float_dict.items():
             if key in text:
-                ind = text.index(key)
-                b_text = text[:ind].split('\n')[-1]
-                b_ind = 2
-                while len(b_text) < 12:
-                    b_text = text[:ind].split('\n')[-b_ind]+' '+b_text
-                    b_ind += 1
-                a_text = text[ind:].split('\n')[0]
-                final_t = [b_text+a_text]
+                name = 'No name'
+                for i in val:
+                    if re.search(regx_term, i) != None:
+                        name = i
+                        break
                 doc_str = str(docLoc[0]).split('\\')[-1]
                 page_str = 'page {0}/{1}'.format(docLoc[1], docLoc[2])
-                final_t.append(doc_str+' - '+page_str)
-                found_dict[key] = final_t
+                final_loc = doc_str+' - '+page_str
+                found_dict[key] = [name, final_loc]
         return found_dict
