@@ -3,13 +3,16 @@ import pandas as pd
 def extract_excel(file):
     xl = pd.ExcelFile(file)
     df = xl.parse(xl.sheet_names[0])
+    df.fillna('', inplace=True)
     n_list = df.values.tolist()
+    print(n_list)
 
     floats = {}
     for element in n_list:
         for i in element:
             if isinstance(i, float):
                 floats[str(i)] = element
+                print(str(i))
                 break
 
     final_dict = {}

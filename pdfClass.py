@@ -22,7 +22,7 @@ class PDFObj:
         txt_check = pdf_reader.getPage(0).extractText()
         if txt_check != '':
             for i in range(pdf_reader.numPages):
-                temp_text = pdf_reader.getPage(i).extractText()
+                temp_text = pdf_reader.getPage(i).extractText().replace(',','').replace('\n','').replace('\r','')
                 results = self.__find_text(temp_text, float_dict, [path, i+1, pdf_reader.numPages])
                 doc_results = self.__diff_doc_results(results, doc_results)
                 print('Scan {0} page {1}/{2} completed'.format(str(path).split('\\')[-1], i+1, pdf_reader.numPages))
