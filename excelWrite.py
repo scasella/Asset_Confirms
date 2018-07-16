@@ -1,16 +1,16 @@
 import xlsxwriter
 
 def write_excel(path, f_dict, not_found, excel_file_path):
-    workbook = xlsxwriter.Workbook(path+'/Output.xlsx')
+    workbook = xlsxwriter.Workbook(path+'/Results.xlsx')
     worksheet = workbook.add_worksheet()
 
     format_t = workbook.add_format()
     format_t.set_bold()
     format_t.set_align('vcenter')
-    format_t.set_align('left')
+    format_t.set_align('center')
     format_t.set_font_size(16)
-    format_t.set_border(1)
-    format_t.set_border_color('#000000')
+    #format_t.set_border(1)
+    #format_t.set_border_color('#000000')
 
     format_h = workbook.add_format()
     format_h.set_bold()
@@ -43,29 +43,35 @@ def write_excel(path, f_dict, not_found, excel_file_path):
     worksheet.set_column('C:C', 20)
 
     worksheet.merge_range('A1:C1', '', format_t)
-    worksheet.write_url('A1:C1', excel_file_path, format_t,  string=('Distribution Confirmation: {0}'.format(excel_file_path.split('\\')[-1])))
+    worksheet.write_url('A1:C1', excel_file_path, format_t,  string=('Distribution List: {0}'.format(excel_file_path.split('\\')[-1])))
     worksheet.set_row(0,30)
 
-    #cols = ['Name', 'Amount', 'File']
+    #cols = ['Name', 'Amount', 'Date', 'Comments', File']
     worksheet.write(1, 0, 'Name', format_alt_h)
     worksheet.write(1, 1, 'Amount', format_h)
-    worksheet.write(1, 2, 'File', format_h)
+    worksheet.write(1, 2, 'Date', format_h)
+    worksheet.write(1, 3, 'Comments', format_h)
+    worksheet.write(1, 4, 'File', format_h)
 
     worksheet.set_column('A:A', 20)
     worksheet.set_column('B:B', 10)
-    worksheet.set_column('C:C', 20)
+    worksheet.set_column('C:C', 10)
+    worksheet.set_column('D:D', 75)
+    worksheet.set_column('E:E', 20)
 
     r_count = 2
     out_list = []
     for key, val in f_dict.items():
         for i in val:
-            out_list.append([i[0], key, i[1]])
+            out_list.append([i[0], key, i[1], i[2], i[3]])
     out_list = sorted(out_list)
     
     for val in out_list:
         worksheet.write(r_count, 0, val[0])
         worksheet.write(r_count, 1, ('$'+val[1]), format_a)
-        worksheet.write_url(r_count, 2, '{0}'.format(val[2].split(' ')[0]), string=val[2], cell_format=format_l)
+        worksheet.write(r_count, 2, val[2], format_a)
+        worksheet.write(r_count, 3, val[3])
+        worksheet.write_url(r_count, 4, '{0}'.format(val[4].split(' ')[0]), string=val[4], cell_format=format_l)
         r_count += 1
 
     r_count += 1

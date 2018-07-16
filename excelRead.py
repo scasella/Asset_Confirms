@@ -5,22 +5,18 @@ def extract_excel(file):
     df = xl.parse(xl.sheet_names[0])
     df.fillna('', inplace=True)
     n_list = df.values.tolist()
-    print(n_list)
 
     floats = {}
-    for element in n_list:
-        for i in element:
-            if isinstance(i, float):
-                floats[str(i)] = element
-                print(str(i))
+    for row in n_list:
+        for cell in row:
+            try:
+                float(str(cell).replace(',',''))
+                print(cell)
+                #{float:[all row items]}
+                floats[str(cell)] = [str(x) for x in row]
                 break
-
-    final_dict = {}
-    for key, val in floats.items():
-        temp_list = []
-        for x in val:
-            temp_list.append(str(x))
-        final_dict[str(key)] = temp_list
-
+            except:
+                pass
+    #floats = {'amt': [data in row (name, amt)]}
     print('Distribution list imported')
-    return final_dict
+    return floats

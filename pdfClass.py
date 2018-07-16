@@ -1,8 +1,8 @@
-import cv2
-import pytesseract
-import numpy as np
-from wand.image import Image as Image
-from wand.color import Color as Color
+#import cv2
+#import pytesseract
+#import numpy as np
+#from wand.image import Image as Image
+#from wand.color import Color as Color
 import PyPDF2
 import re
 
@@ -26,8 +26,8 @@ class PDFObj:
                 results = self.__find_text(temp_text, float_dict, [path, i+1, pdf_reader.numPages])
                 doc_results = self.__diff_doc_results(results, doc_results)
                 print('Scan {0} page {1}/{2} completed'.format(str(path).split('\\')[-1], i+1, pdf_reader.numPages))
-        else:
-            doc_results = self.__convert_doc_pdf(path, float_dict)
+        #else:
+            #doc_results = self.__convert_doc_pdf(path, float_dict)
         return doc_results
 
     def __diff_doc_results(self, results, doc_results):
@@ -37,7 +37,7 @@ class PDFObj:
             else:
                 doc_results[key] = val
         return doc_results
-
+    """
     def __convert_doc_pdf(self, path, float_dict):
         try:
             img = Image(filename=path, resolution=350)
@@ -69,33 +69,50 @@ class PDFObj:
         pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract'
         gray = cv2.bitwise_not(cvF)
         thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        #thresh = cv2.adaptiveThreshold(cvF, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 1)
-        #kernel = np.ones((1,1),np.uint8)
-        #thresh = cv2.erode(thresh,kernel,iterations = 1)
-        #blur = cv2.GaussianBlur(thresh,(1,1),0)
-        #thresh = cv2.addWeighted(blur,1.5,thresh,-0.5,0)
-        #im2 = cv2.resize(thresh, (int(thresh.shape[0]*0.25), int(thresh.shape[1]*0.25)))
-        #cv2.imshow('img',im2)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-        #Tesseract find text from img
-        #final = ssn_re.findall(pytesseract.image_to_string(thresh).replace(' ', ''))
-        #final = formatSSN(final)
+        ###
+        thresh = cv2.adaptiveThreshold(cvF, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 3, 1)
+        kernel = np.ones((1,1),np.uint8)
+        thresh = cv2.erode(thresh,kernel,iterations = 1)
+        blur = cv2.GaussianBlur(thresh,(1,1),0)
+        thresh = cv2.addWeighted(blur,1.5,thresh,-0.5,0)
+        im2 = cv2.resize(thresh, (int(thresh.shape[0]*0.25), int(thresh.shape[1]*0.25)))
+        cv2.imshow('img',im2)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        Tesseract find text from img
+        final = ssn_re.findall(pytesseract.image_to_string(thresh).replace(' ', ''))
+        final = formatSSN(final)
+        ###
         final = pytesseract.image_to_string(thresh)
         return final
+    """
+    def __get_date_comments(self, key, text):
+        regx_date = re.compile('[0-9]{1,2}(/|-)[0-9]{1,2}(/[0-9]{2,4}|-[0-9]{2,4}|\s)($|\s)')
+        text_loc = text.index(key)
+        rem_text = text[:text_loc]
+        txt_iter = regx_date.finditer(rem_text)
+        try:
+            date_span = [x for x in txt_iter][-1]
+        except:
+            return '', ''
+        date = date_span.group()
+        comments = rem_text[(date_span.end()+1):].replace('  ','')[-(min(len(rem_text[(date_span.end()+1):]),90)):].replace('\n','').replace('\r','').replace('$','')
+        return date, comments
 
     def __find_text(self, text, float_dict, docLoc):
-        regx_term = re.compile('[A-Z].*\s[A-Z].*')
+        regx_name = re.compile('[A-Z].*\s[A-Z].*')
         found_dict = {}
         for key, val in float_dict.items():
             if key in text:
+                date, comments = self.__get_date_comments(key, text)
                 name = 'No name'
                 for i in val:
-                    if re.search(regx_term, i) != None:
+                    if re.search(regx_name, i) != None:
                         name = i
                         break
                 doc_str = str(docLoc[0]).split('\\')[-1]
                 page_str = 'page {0}/{1}'.format(docLoc[1], docLoc[2])
                 final_loc = doc_str+' - '+page_str
-                found_dict[key] = [name, final_loc]
+                #{float: [name, location]}
+                found_dict[key] = [name, date, comments, final_loc]
         return found_dict
